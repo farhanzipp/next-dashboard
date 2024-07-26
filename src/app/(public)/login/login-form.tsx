@@ -3,14 +3,18 @@ import { signInSchema, SignInSchemaProps } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { Label } from './ui/label';
-import { Input } from './ui/input';
+
 import Link from 'next/link';
-import { Button } from './ui/button';
+
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/router';
 
 export default function LoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -30,6 +34,7 @@ export default function LoginForm() {
         const data = response.data;
         const token = data.token;
         Cookies.set('token', token, {expires: 3});
+        router.push('/dashboard');
         
         // reset();
       })
