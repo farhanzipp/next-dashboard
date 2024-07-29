@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -26,39 +26,41 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: SignInSchemaProps) => {
-    axios.post('https://dummyjson.com/auth/login', {
-      username: data.username,
-      password: data.password,
-    })
-      .then(function (response) {
-        const data = response.data;
-        const token = data.token;
-        Cookies.set('token', token, {expires: 3});
-        router.push('/dashboard');
-        
-        // reset();
+    console.log('asdas')
+    try {
+      const response = await axios.post('https://dummyjson.com/auth/login', {
+        username: data.username,
+        password: data.password,
       })
-      .catch(function (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          if (error.response.status >= 400 && error.response.status < 500) {
-            setError('root.serverError', {
-              type: '400',
-              message: error.response.data.message || 'Invalid credentials. Please try again.',
-            });
-          } else {
-            setError('root.serverError', {
-              type: '500',
-              message: 'An unexpected error occurred. Please try again.',
-            });
-          }
-        } else {
-          console.error('error', error);
+      const token = response.data.token;
+      Cookies.set('token', token, { expires: 3 });
+      if(response){
+
+        router.push('/dashboard');
+      }
+
+      // reset();
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status >= 400 && error.response.status < 500) {
           setError('root.serverError', {
-            type: 'manual',
+            type: '400',
+            message: error.response.data.message || 'Invalid credentials. Please try again.',
+          });
+        } else {
+          setError('root.serverError', {
+            type: '500',
             message: 'An unexpected error occurred. Please try again.',
           });
         }
-      })
+      } else {
+        console.error('error', error);
+        setError('root.serverError', {
+          type: 'manual',
+          message: 'An unexpected error occurred. Please try again.',
+        });
+      }
+    }
   };
 
   return (
@@ -107,6 +109,5 @@ export default function LoginForm() {
         </Button>
       </div>
     </form>
-
   )
 }
