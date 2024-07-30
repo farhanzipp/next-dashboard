@@ -1,12 +1,10 @@
+'use client'
 import { Separator } from "@/components/ui/separator"
-import { Metadata } from "next"
 import { SidebarNav } from "./sidebar-nav"
 import { LogoutButton } from "./logout-btn"
-
-export const metadata: Metadata = {
-  title: "Forms",
-  description: "Advanced form example using react-hook-form and Zod.",
-}
+import Cookies from "js-cookie"
+import axios from "axios"
+import { useEffect, useState } from "react"
 
 const sidebarNavItems = [
   {
@@ -27,15 +25,36 @@ interface SettingsLayoutProps {
   children: React.ReactNode
 }
 
+async function getUserData() {
+  try {
+    const token = Cookies.get('token');
+    const response = await axios.get('https://dummyjson.com/auth/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    return response.data;
+  } catch (error) {
+    console.log("error", error)
+  }
+}
+
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const user = await getUserData();
+      setUserData(user);
+    }
+    fetchUserData();
+  },[]);
   return (
     <>
-      <div className="hidden space-y-6 p-10 pb-16 md:block">
-        <div className="space-y-0.5 flex">
-          <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-          <p className="text-muted-foreground">
-            Manage your account settings and set e-mail preferences.
-          </p>
+      <div className=" p-10 pb-16 md:block">
+        <div className="space-y-0.5 flex justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
           <LogoutButton />
         </div>
         <Separator className="my-6" />
