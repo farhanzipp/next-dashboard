@@ -21,18 +21,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
 import { toast } from "@/components/ui/use-toast"
-
-import Cookie from "js-cookie"
-import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export function LogoutButton() {
+import { useRouter } from "next/navigation"
+import Cookie from "js-cookie"
+import { UserInfo } from "@/types"
+
+interface LogoutButtonProps {
+  userInfo?: UserInfo;
+}
+
+export function LogoutButton({ userInfo }: LogoutButtonProps) {
   const router = useRouter();
-  const [open, setIsOpen] = React.useState(false)
+  const [open, setIsOpen] = React.useState(false);
+  
   const handleLogout = () => {
     Cookie.remove('token');
+    Cookie.remove('user-data');
     router.push("/login")
   }
 
@@ -42,7 +48,10 @@ export function LogoutButton() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="https://github.com/shadcn.png" alt="@user" />
+              <AvatarImage 
+                src={userInfo?.image || '/default-avatar.png'} 
+                alt={userInfo?.username || 'Default User'} 
+              />
               <AvatarFallback>SC</AvatarFallback>
             </Avatar>
           </Button>
@@ -50,9 +59,11 @@ export function LogoutButton() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">shadcn</p>
+              <p className="text-sm font-medium leading-none">
+                {userInfo?.username || 'User'}
+              </p>
               <p className="text-xs leading-none text-muted-foreground">
-                m@example.com
+                {userInfo?.email || 'user@example.com'}
               </p>
             </div>
           </DropdownMenuLabel>

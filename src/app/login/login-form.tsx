@@ -26,18 +26,22 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: SignInSchemaProps) => {
-    console.log('asdas')
     try {
       const response = await axios.post('https://dummyjson.com/auth/login', {
         username: data.username,
         password: data.password,
       })
-      const token = response.data.token;
-      Cookies.set('token', token, { expires: 3 });
-      if(response){
 
-        router.push('/dashboard');
+      const userData = response.data;
+      const userInfo = {
+        username : userData.username,
+        email : userData.email,
+        image : userData.image,
       }
+
+      Cookies.set('token', userData.token, { expires: 3 });
+      Cookies.set('user-info', JSON.stringify(userInfo) )
+      router.push('/dashboard');
 
       // reset();
     } catch (error) {
